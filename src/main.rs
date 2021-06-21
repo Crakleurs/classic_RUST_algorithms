@@ -2,7 +2,7 @@ use rand::Rng;
 use std::time::Instant;
 
 fn main() {
-    let mut arr = [0; 100_000];
+    let mut arr = [0; 100];
     generate_random_array(&mut arr);
 
     shuffle(&mut arr);
@@ -35,6 +35,13 @@ fn main() {
     println!("{:?}", new_now.duration_since(now));
     println!("{}", compare_two_arrays(&reference_array, &arr));
 
+    shuffle(&mut arr);
+    now = Instant::now();
+    heap_sort(&mut arr);
+    new_now = Instant::now();
+    println!("{:?}", new_now.duration_since(now));
+    println!("{}", compare_two_arrays(&reference_array, &arr));
+
 }
 
 fn fibonacci(n: u64) -> u64 {
@@ -58,7 +65,6 @@ fn fibonacci_recursive(n: u64) -> u64 {
     if n <= 1 {
         return n;
     }
-
     return fibonacci_recursive(n - 1) + fibonacci_recursive(n - 2);
 }
 
@@ -165,7 +171,7 @@ fn shuffle(array_to_shuffle: &mut [i32]){
 fn generate_random_array(array_to_generate: &mut [i32]){
     let mut rng = rand::thread_rng();
     for i in 0..array_to_generate.len(){
-        array_to_generate[i] = rng.gen::<i32>();
+        array_to_generate[i] = rng.gen::<u8>() as i32;
     }
 }
 
@@ -177,4 +183,44 @@ fn compare_two_arrays(first_array: &[i32], second_array: &[i32]) -> bool{
         }
     }
     return true;
+}
+
+fn heap_sort(array: &mut[i32]){
+    heapify(array);
+    let mut k = array.len() - 1;
+
+    loop {
+        if k > 0 {
+            array.swap(0, k);
+            sift(array, 0, k - 1);
+            k -= 1;
+        }else {
+            break;
+        }
+    }
+}
+
+fn sift(array: &mut[i32], node: usize, len: usize) {
+    let mut father = node;
+    let mut child = 2 * father + 1;
+
+    if (child < len) && (array[child] < array[child +1]) {
+        child += 1;
+    }
+    if (child < len) && (array[father] < array[child]) {
+        array.swap(father, child);
+        sift(array, child, len)
+    }
+}
+
+fn heapify(array: &mut[i32]) {
+    let mut i = array.len()/2;
+    loop {
+        sift(array, i, array.len() - 1);
+        if i > 0{
+            i -= 1;
+        }else {
+            break
+        }
+    }
 }
